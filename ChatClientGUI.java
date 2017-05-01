@@ -19,11 +19,14 @@ public class ChatClientGUI extends JFrame implements Observer{
 	JTextField nickNameField;
 	JButton joinChatButton;
 	JPanel tfPanel;
+	MessagePanel messagePanel;
 	static ChatClient controller;
 	JLabel messageArea;
 
 	/** Constructor to set up all the GUI components */
 	public ChatClientGUI() {
+
+		messagePanel = new MessagePanel();
 
 		renderLoginScreen();
 
@@ -56,8 +59,6 @@ public class ChatClientGUI extends JFrame implements Observer{
 		nickNameField = new JTextField(10);
 		nickNameField.setText("Aditi");
 		tfPanel.add(nickNameField);
-		
-		messageArea = new JLabel();
 
 		joinChatButton = new JButton("Join Chat");
 		tfPanel.add(joinChatButton);
@@ -97,7 +98,7 @@ public class ChatClientGUI extends JFrame implements Observer{
 		this.getContentPane().remove(tfPanel);
 
 		tfPanel = new JPanel(new GridLayout(4, 2, 10, 2));
-		tfPanel.setBorder(BorderFactory.createTitledBorder("Chat Room Credentials: "));
+		tfPanel.setBorder(BorderFactory.createTitledBorder("Type Message Below: "));
 
 		// Regular text field (Row 1)
 		final JTextField messageField = new JTextField(10);
@@ -121,8 +122,8 @@ public class ChatClientGUI extends JFrame implements Observer{
 
 
 		Container cp = this.getContentPane();
-		cp.setLayout(new BorderLayout(5, 5));
-		cp.add(messageArea, BorderLayout.NORTH);
+		cp.setLayout(new BorderLayout(0, 0));
+		cp.add(messagePanel, BorderLayout.CENTER);
 		cp.add(tfPanel, BorderLayout.SOUTH);
 
 		getRootPane().revalidate();
@@ -145,12 +146,11 @@ public class ChatClientGUI extends JFrame implements Observer{
 	@Override
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
-		String text = "<HTML>";
-		for(ChatMessage msg: controller.getMessageList()){
-			text += msg.getMessage() + "<br>";
-		}
-		text += "<HTML>";
-		messageArea.setText(text);
-		//System.out.println(text);
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				messagePanel.addLabel(controller.getMessageList().get(controller.getMessageList().size() - 1));
+			}
+		});
 	}
 }

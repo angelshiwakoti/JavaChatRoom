@@ -1,15 +1,18 @@
 public class ChatMessage {
 	private String message;
 	private String userName;
+	private int type;
 	
 	public ChatMessage(){
 		this.message = "";
 		this.userName = "";
+		type = 0;
 	}
 	
-	public ChatMessage(String username, String message){
+	public ChatMessage(String username, String message, int type){
 		this.message = message;
 		this.userName = username;
+		this.type = type;
 	}
 
 	public String getMessage() {
@@ -28,4 +31,7 @@ public class ChatMessage {
 		this.userName = userName;
 	}
 	
+	public int getType(){
+		return type;
+	}
 }

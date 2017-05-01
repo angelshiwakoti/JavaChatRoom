@@ -44,7 +44,8 @@ public class ChatClient extends Observable{
 
 		outToServer = new DataOutputStream(clientSocket.getOutputStream());
 
-		outToServer.writeBytes("Nickname:" + nickName + "\n");
+		//outToServer.writeBytes(nickName + " joined the chat. Say Hello to " + nickName + " :)"  + "\n");
+		outToServer.writeBytes(nickName + "\n");
 
 		Runnable clientTask = new Runnable() {
 			@Override
@@ -58,7 +59,14 @@ public class ChatClient extends Observable{
 						String msg = inFromServer.readLine();
 						System.out.println(msg);
 						if(msg != null && msg.length() != 0){
-							ChatMessage message = new ChatMessage("", msg);
+							ChatMessage message = new ChatMessage();
+							if(msg.contains(":")){
+								int index = msg.indexOf(":");
+								message = new ChatMessage(msg.substring(0, index).toUpperCase(), msg.substring(index + 1, msg.length()), 2);
+							}
+							else{
+								message = new ChatMessage(msg, "", 1);
+							}
 							messageList.add(message);
 							if(messageList != null){
 								updateChatDialog();

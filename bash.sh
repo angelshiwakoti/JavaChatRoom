@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Compile the Java Files
+javac MessagePanel.java
 javac ChatMessage.java
 javac ChatClient.java
 javac ChatClientGUI.java
@@ -12,10 +13,10 @@ echo -n "What do you want to run? Type SERVER to run server and CLIENT to run cl
 read runType
 
 # Check the command to run server or client
-if  [ "$runType" == "SERVER" ]; then
+if  [ "$runType" == "SERVER" ] || [ "$runType" == "server" ]; then
 	java ChatServerGUI
 	exit 1
-elif [ "$runType" == "CLIENT" ]; then
+elif [ "$runType" == "CLIENT" ] || [ "$runType" == "client" ]; then
 	java ChatClientGUI
 else
 	echo -n "Wrong command. Please run the script again and enter SERVER or CLIENT."

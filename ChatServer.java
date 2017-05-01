@@ -49,11 +49,13 @@ public class ChatServer {
 		private final Socket clientSocket;
 		private BufferedReader inFromClient;
 		private DataOutputStream outToClient;
+		private String userNickName;
 
 		private ClientTask(Socket clientSocket, BufferedReader inFromClient, DataOutputStream outToClient) {
 			this.clientSocket = clientSocket;
 			this.inFromClient = inFromClient;
 			this.outToClient = outToClient;
+			this.userNickName = null;
 			getClients().add(this);
 		}
 
@@ -62,27 +64,28 @@ public class ChatServer {
 			System.out.println("Got a client !");
 
 			while(true){
+				
 				String clientSentence = "";
 				try {
 					clientSentence = this.inFromClient.readLine();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
+				} 
+				catch (IOException e) {
 					e.printStackTrace();
 				}
 
-				System.out.println("RECEIVED FROM CLIENT: " + clientSentence);
-				System.out.println("here " + clients.size());
-				ChatMessage message = new ChatMessage("", clientSentence);
-
-				String capitalizedSentence = clientSentence.toUpperCase() + "\n"; 
+				if(this.userNickName == null){
+					this.userNickName = clientSentence.toUpperCase();
+				}
+				else{
+					clientSentence = this.userNickName + ":" + clientSentence;
+				}
 
 				try {
 					for(ClientTask task: getClients()){
-							task.outToClient.writeBytes(capitalizedSentence);
+							task.outToClient.writeBytes(clientSentence + "\n");
 					}
-					//outToClient.writeBytes();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
+				} 
+				catch (IOException e) {
 					e.printStackTrace();
 				}
 
