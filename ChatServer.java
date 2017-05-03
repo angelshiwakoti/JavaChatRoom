@@ -104,5 +104,6 @@ public class ChatServer {
 	public static void setClients(ArrayList<ClientTask> clients) {
 		ChatServer.clients = clients;
 	}
+
 	
 }

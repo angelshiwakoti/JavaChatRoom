@@ -6,12 +6,15 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Observable;
+import java.net.*;
+import javax.sound.sampled.*;
 
 public class ChatClient extends Observable{
 
 	ArrayList<ChatMessage> messageList;
 	DataOutputStream outToServer;
 	BufferedReader inFromUser;
+	Socket clientSocket;
 
 	public ChatClient(){
 		messageList = new ArrayList<ChatMessage>();
@@ -39,7 +42,7 @@ public class ChatClient extends Observable{
 
 		inFromUser = new BufferedReader(new InputStreamReader(System.in));
 
-		final Socket clientSocket = new Socket(hostName, portNumber);
+		clientSocket = new Socket(hostName, portNumber);
 
 
 		outToServer = new DataOutputStream(clientSocket.getOutputStream());
@@ -51,56 +54,76 @@ public class ChatClient extends Observable{
 			@Override
 			public void run() {
 
-				while(true){
-					BufferedReader inFromServer;
-					try {
-						inFromServer = new BufferedReader(new InputStreamReader(
-								clientSocket.getInputStream()));
-						String msg = inFromServer.readLine();
-						System.out.println(msg);
-						if(msg != null && msg.length() != 0){
-							ChatMessage message = new ChatMessage();
-							if(msg.contains(":")){
-								int index = msg.indexOf(":");
-								message = new ChatMessage(msg.substring(0, index).toUpperCase(), msg.substring(index + 1, msg.length()), 2);
-							}
-							else{
-								message = new ChatMessage(msg, "", 1);
-							}
-							messageList.add(message);
-							if(messageList != null){
-								updateChatDialog();
-							}
-						}
-						
-						
-					} 
-					catch (IOException e) 
-					{
-						
-					}
+				try{
+					callChatRoom();
 				}
+				catch(Exception e){
+					
+				}
+
+				// while(true){
+				// 	BufferedReader inFromServer;
+				// 	try {
+				// 		inFromServer = new BufferedReader(new InputStreamReader(
+				// 				clientSocket.getInputStream()));
+				// 		String msg = inFromServer.readLine();
+				// 		System.out.println(msg);
+				// 		if(msg != null && msg.length() != 0){
+				// 			ChatMessage message = new ChatMessage();
+				// 			if(msg.contains(":")){
+				// 				int index = msg.indexOf(":");
+				// 				message = new ChatMessage(msg.substring(0, index).toUpperCase(), msg.substring(index + 1, msg.length()), 2);
+				// 			}
+				// 			else{
+				// 				message = new ChatMessage(msg, "", 1);
+				// 			}
+				// 			messageList.add(message);
+				// 			if(messageList != null){
+				// 				updateChatDialog();
+				// 			}
+				// 		}
+						
+						
+				// 	} 
+				// 	catch (IOException e) 
+				// 	{
+						
+				// 	}
+				// }
 
 			}
 
 		};
 		Thread clientThread = new Thread(clientTask);
 		clientThread.start();
-
-		//		while(true){
-		//			BufferedReader inFromServer =new BufferedReader(new InputStreamReader(
-		//				clientSocket.getInputStream()));
-		//			ChatMessage message = new ChatMessage("", inFromServer.readLine());
-		//			messageList.add(message);
-		//			updateChatDialog();
-		//		}
-
 	}
 
 	public void sendMessageToServer(String message) throws IOException{
 		outToServer.writeBytes(message + "\n");
-//		ChatMessage msg = new ChatMessage("", message);
-//		messageList.add(msg);
-//		updateChatDialog();
+		//172.18.8.152
+	}
+
+	public void callChatRoom() throws Exception{
+
+		AudioFormat af = new AudioFormat(8000.0f,8,1,true,false);
+        DataLine.Info info = new DataLine.Info(TargetDataLine.class, af);
+        TargetDataLine microphone = (TargetDataLine)AudioSystem.getLine(info);
+        microphone.open(af);
+        microphone.start();
+
+        int bytesRead = 0;
+        byte[] soundData = new byte[1];
+        Thread inThread = new Thread(new SoundPlayer(clientSocket));
+        inThread.start();
+
+        while(bytesRead != -1)
+        {
+            bytesRead = microphone.read(soundData, 0, soundData.length);
+            if(bytesRead >= 0)
+            {
+                outToServer.write(soundData, 0, bytesRead);
+            }
+        }
+
 	}
 }
